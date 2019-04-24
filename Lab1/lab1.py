@@ -1,97 +1,138 @@
 import random
+import re
 import operator
+import numpy as np
+from collections import OrderedDict
+from string import digits
 
 letters = ' abcdefghijklmnopqrstuvwxyz'
 
 
-def getRandLetter():
-    return random.choice(letters)
-
-
 def getAvgLen(text):
-    splitText = text.split(' ')
-    lenSum = 0
-    for word in splitText:
-        lenSum += len(word)
-    return round(lenSum / len(splitText), 2)
+    words = text.split(' ')
+    return round(np.sum([len(word) for word in words]) / len(words), 2)
 
 
-def getWeightedRandomLetter(probs):
-    randVal = random.random()
-    total = 0
-    for k, v in probs.items():
-        total += v
-        if randVal <= total:
-            return k
+def getNextLetter(probs={}):
+    return np.random.choice(list(probs.keys()), p=list(probs.values())) if bool(probs) else random.choice(letters)
 
 
-def getLettersDict(text):
-    lettersDict = {}
-    for letter in letters:
-        lettersDict[letter] = text.count(letter)
-    return lettersDict
+def getLettersCount(text):
+    return {letter: text.count(letter) for letter in letters}
 
 
 def getProbabilities(text):
+    lettersNum = len(text)
+    count = getLettersCount(text)
+    return {letter: count[letter] / lettersNum for letter in letters}
+
+
+def getMostCommonLetters(number):
+    lettersDict = getLettersCount(text)
+    commonLetters = sorted(lettersDict.items(), key=operator.itemgetter(1))[-number:]
+    return [letter[0] for letter in reversed(commonLetters)]
+
+
+def printProbs(probs):
+    for key, value in sorted(probs.items(), key=operator.itemgetter(1), reverse=True):
+        print(key, value)
+
+
+def hasNumbers(ngram):
+    return any(char.isdigit() for char in ngram)
+
+
+def normalizeProbability(probs):
+    sum1 = sum(list(probs.values()))
+    for key in probs.keys():
+        probs[key] /= sum1
+
+
+def getProbs(text, n):
     probs = {}
-    lettersNumber = len(text)
-    lettersDict = getLettersDict(text)
-    for letter in letters:
-        probs[letter] = lettersDict[letter] / lettersNumber
+    count = 0
+    for i in range(len(text) - n + 1):
+        ngram = text[i:i+n]
+        if not hasNumbers(ngram):
+            count += 1
+            if tuple(ngram) in probs:
+                probs[tuple(ngram)] += 1 
+            else:
+                probs[tuple(ngram)] = 1
+    for key in probs.keys():
+        probs[key] /= count
     return probs
 
 
-def getPairsProbability(text):
-    pairsProbability = {}
-    pairsNumber = len(text) - 1
-    for letter1 in letters:
-        for letter2 in letters:
-            pairsProbability[(letter1, letter2)] = text.count(letter1+letter2) / pairsNumber
-    return pairsProbability
-
-
-def getConditionalProbabilityOfLetters(text):
+def getConditionalProbability(text, n):
     conditionalProbs = {}
-    pairsProbs = getPairsProbability(text)
-    lettersProbs = getProbabilities(text)
-    for l1 in letters:
-        for l2 in letters:
-            conditionalProbs[(l1, l2)] = pairsProbs[(l2, l1)] / lettersProbs[l2]
+    nGramPlusOneProbs = getProbs(text, n+1)
+    nGramProbs = getProbs(text, n)
+    for k in nGramProbs.keys():
+        conditionalProbs[k] = {}
+        for letter in letters:
+            newKey = k + tuple(letter)
+            if newKey in nGramPlusOneProbs.keys():
+                conditionalProbs[k][letter] = nGramPlusOneProbs[newKey] / nGramProbs[k]
+        normalizeProbability(conditionalProbs[k])
     return conditionalProbs
 
-def getConditionalProbability(text):
-    conditionalProbs = getConditionalProbabilityOfLetters(text)
-    lettersDict = getLettersDict(text)
-    commonLetters = sorted(lettersDict.items(), key=operator.itemgetter(1))[-3:-1]
-    print(sortedLettersDict)
-    
+
+def generateTextOnMarkovChain(startingSequence, sourceText, n, length):
+    probs = getConditionalProbability(sourceText, n)
+    generatedText = startingSequence
+    nextNgram = generatedText[-n:]
+    for i in range(length):
+        generatedText += getNextLetter(probs[tuple(nextNgram)])
+        nextNgram = generatedText[-n:]
+    return generatedText
 
 
-# # 1.
-# textLength = 10000
-# text = ''
-# for i in range(textLength):
-#     text += getRandLetter()
 
-# print(text)
-# print(getAvgLen(text))
+# file = open('norm_wiki_sample.txt', 'r')
+# file = open('norm_romeo_and_juliet.txt', 'r')
+file = open('norm_hamlet.txt', 'r')
+text = file.read()[:1000000]
+text = text.translate(str.maketrans('', '', digits))    #usunięcie liczb
+text = re.sub(' +', ' ', text)                          #usunięcie wielokrotnych spacji 
 
+
+# 1.
+print("\n1. Przybliżenie zerowego rzędu\n")
+generatedText = ''.join([getNextLetter() for i in range(100000)])
+print("Średnia długość słowa : ", getAvgLen(generatedText))
 
 # 2.
-file = open('norm_hamlet.txt', 'r')
-text = file.read()
-# print(text)
-print('Wartosci prawdopodobienstwa dla wszystkich liter:\n', getProbabilities(text))
-print('Srednia dlugosc slowa w Hamlecie: ', getAvgLen(text))
-
-getConditionalProbability(text)
-
+print("\n\n2. Częstość liter\n")
+printProbs(getProbabilities(text))
+print("\nLitery najczęściej występujące w języku angielskim mają w alfabecie Morse'a najkrótsze sekwencje, w celu przyspieszenia nadawania wiadomości.")
 
 # 3.
+print("\n\n3. Przyblżenie pierwszego rzędu\n")
 probs = getProbabilities(text)
-textLength = 10000
-generatedText = ''
-for i in range(textLength):
-    generatedText += getWeightedRandomLetter(probs)
-# print('Tekst z losowymi literami z rzeczywistym prawdopodobienstwem: ', generatedText)
-print('Srednia dlugosc slowa w losowym teksice z rzeczywistym prawdopodobienstwem', getAvgLen(generatedText))
+generatedText = ''.join([getNextLetter(probs) for i in range(10000)])
+print('Średnia długość słowa w losowym tekście z rzeczywistym prawdopodobieństwem : ', getAvgLen(generatedText))
+print('\nŚrednia długość słowa w oryginalnym tekście : ', getAvgLen(text))
+print('\nW przypadku generowania kolejnych liter tekstu z rzeczywistym prawdopodoboeństwem, średnia długość słowa jest bardzo podobna do średniej długości słowa w tekście oryginalnym.')
+
+# 4.
+print("\n\n4. Prawdopodobieństwo warunkowe liter\n")
+commonLetters = getMostCommonLetters(2)
+print('Dwia najczęściej występujące w tekście znaki to \'' + commonLetters[0] + '\' i \'' + commonLetters[1] +'\'')
+condProbs = getConditionalProbability(text, 1)
+for letter in commonLetters:
+    print("\nPrawdopodopieństwo wystąpienia znaków po \'" + letter + "\' :\n")
+    printProbs(condProbs[tuple(letter)])
+
+# 5.
+print("\n\n5. Przybliżenia na podstawie źródła Markova")
+
+for i in [1, 3, 5]:
+    print("\nPrzybliżenie " + str(i) + " rzędu: \n")
+    generatedText = generateTextOnMarkovChain('probability', text, i, 2000)
+    print(generatedText)
+    print("\nŚrednia długość wyrazu: ", getAvgLen(generatedText))
+
+
+
+
