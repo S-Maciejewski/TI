@@ -27,6 +27,13 @@ def getProbs(bag, n):
     return probs
 
 
+def calculateTheoriticalEntropy():
+    entropy = 0
+    prob = 1/len(letters)
+    for i in range(len(letters)):
+        entropy += prob * math.log(prob, 2)
+    return -entropy
+
 
 def calculateTheoriticalEntropy():
     entropy = 0
@@ -49,7 +56,6 @@ def calculateConditionalEntropy(probs, conditionalProbs):
         for key2, prob in value.items():
             entropy += probs[key + tuple([key2])] * math.log(prob, 2)
     return -entropy
-    
 
 
 def normalizeProbability(probs):
