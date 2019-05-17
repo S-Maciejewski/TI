@@ -29,7 +29,8 @@ def getProbabilities(text):
 
 def getMostCommonLetters(number):
     lettersDict = getLettersCount(text)
-    commonLetters = sorted(lettersDict.items(), key=operator.itemgetter(1))[-number:]
+    commonLetters = sorted(lettersDict.items(),
+                           key=operator.itemgetter(1))[-number:]
     return [letter[0] for letter in reversed(commonLetters)]
 
 
@@ -56,7 +57,7 @@ def getProbs(text, n):
         if not hasNumbers(ngram):
             count += 1
             if tuple(ngram) in probs:
-                probs[tuple(ngram)] += 1 
+                probs[tuple(ngram)] += 1
             else:
                 probs[tuple(ngram)] = 1
     for key in probs.keys():
@@ -73,7 +74,8 @@ def getConditionalProbability(text, n):
         for letter in letters:
             newKey = k + tuple(letter)
             if newKey in nGramPlusOneProbs.keys():
-                conditionalProbs[k][letter] = nGramPlusOneProbs[newKey] / nGramProbs[k]
+                conditionalProbs[k][letter] = nGramPlusOneProbs[newKey] / \
+                    nGramProbs[k]
         normalizeProbability(conditionalProbs[k])
     return conditionalProbs
 
@@ -88,13 +90,12 @@ def generateTextOnMarkovChain(startingSequence, sourceText, n, length):
     return generatedText
 
 
-
 # file = open('norm_wiki_sample.txt', 'r')
 # file = open('norm_romeo_and_juliet.txt', 'r')
 file = open('norm_hamlet.txt', 'r')
 text = file.read()[:1000000]
-text = text.translate(str.maketrans('', '', digits))    #usunięcie liczb
-text = re.sub(' +', ' ', text)                          #usunięcie wielokrotnych spacji 
+text = text.translate(str.maketrans('', '', digits))  # usunięcie liczb
+text = re.sub(' +', ' ', text)  # usunięcie wielokrotnych spacji
 
 
 # 1.
@@ -111,14 +112,16 @@ print("\nLitery najczęściej występujące w języku angielskim mają w alfabec
 print("\n\n3. Przyblżenie pierwszego rzędu\n")
 probs = getProbabilities(text)
 generatedText = ''.join([getNextLetter(probs) for i in range(10000)])
-print('Średnia długość słowa w losowym tekście z rzeczywistym prawdopodobieństwem : ', getAvgLen(generatedText))
+print('Średnia długość słowa w losowym tekście z rzeczywistym prawdopodobieństwem : ',
+      getAvgLen(generatedText))
 print('\nŚrednia długość słowa w oryginalnym tekście : ', getAvgLen(text))
 print('\nW przypadku generowania kolejnych liter tekstu z rzeczywistym prawdopodoboeństwem, średnia długość słowa jest bardzo podobna do średniej długości słowa w tekście oryginalnym.')
 
 # 4.
 print("\n\n4. Prawdopodobieństwo warunkowe liter\n")
 commonLetters = getMostCommonLetters(2)
-print('Dwia najczęściej występujące w tekście znaki to \'' + commonLetters[0] + '\' i \'' + commonLetters[1] +'\'')
+print('Dwia najczęściej występujące w tekście znaki to \'' +
+      commonLetters[0] + '\' i \'' + commonLetters[1] + '\'')
 condProbs = getConditionalProbability(text, 1)
 for letter in commonLetters:
     print("\nPrawdopodopieństwo wystąpienia znaków po \'" + letter + "\' :\n")
@@ -132,7 +135,3 @@ for i in [1, 3, 5]:
     generatedText = generateTextOnMarkovChain('probability', text, i, 2000)
     print(generatedText)
     print("\nŚrednia długość wyrazu: ", getAvgLen(generatedText))
-
-
-
-
