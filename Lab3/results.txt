@@ -1,0 +1,169 @@
+Wyniki dla 10000000 znaków:
+
+JĘZYK ANGIELSKI
+Entropia (znaki):  4.286446527129312
+Entropia warunkowa 1 rzędu (znaki):  3.5132509467453072
+Entropia warunkowa 2 rzędu (znaki):  3.0129469515557217
+Entropia warunkowa 3 rzędu (znaki):  2.4752227158935196 
+
+Entropia (słowa):  11.51457285222744 
+Entropia warunkowa 1 rzędu (słowa):  6.3608936754662775
+Entropia warunkowa 2 rzędu (słowa):  2.150423392411781
+Entropia warunkowa 3 rzędu (słowa):  0.4728257724610987
+
+
+
+JĘZYK ŁACIŃSKI
+Entropia (znaki):  4.2180663416252955
+Entropia warunkowa 1 rzędu (znaki):  3.4671198199965754
+Entropia warunkowa 2 rzędu (znaki):  2.9058425760226894
+Entropia warunkowa 3 rzędu (znaki):  2.278030124199071 
+
+Entropia (słowa):  12.334132158828046 
+Entropia warunkowa 1 rzędu (słowa):  4.662509647877152
+Entropia warunkowa 2 rzędu (słowa):  1.153838412894952
+Entropia warunkowa 3 rzędu (słowa):  0.34976500855728326
+
+
+
+JĘZYK ESPERANTO
+Entropia (znaki):  4.167606538293733
+Entropia warunkowa 1 rzędu (znaki):  3.3292543503526946
+Entropia warunkowa 2 rzędu (znaki):  2.8561825782099906
+Entropia warunkowa 3 rzędu (znaki):  2.362826479455746 
+
+Entropia (słowa):  11.370729949119763
+Entropia warunkowa 1 rzędu (słowa):  6.234477332880128
+Entropia warunkowa 2 rzędu (słowa):  2.2352030943471695
+Entropia warunkowa 3 rzędu (słowa):  0.5398583190643076
+
+
+
+JĘZYK ESTOŃSKI
+Entropia (znaki):  4.169833224728489
+Entropia warunkowa 1 rzędu (znaki):  3.5069581563728933
+Entropia warunkowa 2 rzędu (znaki):  3.134406113206229
+Entropia warunkowa 3 rzędu (znaki):  2.610865653558903 
+
+Entropia (słowa):  13.746254776333288
+Entropia warunkowa 1 rzędu (słowa):  5.4241806761896845
+Entropia warunkowa 2 rzędu (słowa):  0.904744029553725
+Entropia warunkowa 3 rzędu (słowa):  0.11619682185006328
+
+
+
+JĘZYK HAITAŃSKI
+Entropia (znaki):  4.146385764101038
+Entropia warunkowa 1 rzędu (znaki):  3.1138604806021344
+Entropia warunkowa 2 rzędu (znaki):  2.273524831268279
+Entropia warunkowa 3 rzędu (znaki):  1.4921524582749164 
+
+Entropia (słowa):  8.166944942459457 
+Entropia warunkowa 1 rzędu (słowa):  3.193120327947668
+Entropia warunkowa 2 rzędu (słowa):  1.311336589071994
+Entropia warunkowa 3 rzędu (słowa):  0.8122388732061193
+
+
+
+JĘZYK NAVAHO
+Entropia (znaki):  3.874937258820944
+Entropia warunkowa 1 rzędu (znaki):  2.9472671465949567
+Entropia warunkowa 2 rzędu (znaki):  2.3675796218970704
+Entropia warunkowa 3 rzędu (znaki):  1.7952629128163389 
+
+Entropia (słowa):  9.154125211583194 
+Entropia warunkowa 1 rzędu (słowa):  3.8639427560114736
+Entropia warunkowa 2 rzędu (słowa):  1.718820893109524
+Entropia warunkowa 3 rzędu (słowa):  0.8992675793688895
+
+
+
+JĘZYK SOMALIJSKI
+Entropia (znaki):  4.040113860382521
+Entropia warunkowa 1 rzędu (znaki):  3.2995658731458635
+Entropia warunkowa 2 rzędu (znaki):  2.844371623926435
+Entropia warunkowa 3 rzędu (znaki):  2.3743105931757817 
+
+Entropia (słowa):  11.731124531548856 
+Entropia warunkowa 1 rzędu (słowa):  5.398727837588255
+Entropia warunkowa 2 rzędu (słowa):  1.6086201518410677
+Entropia warunkowa 3 rzędu (słowa):  0.4096055722509779
+
+
+
+SAMPLE 0                            --- plik NIE ZAWIERA języka naturalnego 
+Entropia (znaki):  4.273001240566634
+Entropia warunkowa 1 rzędu (znaki):  2.9158940043478916
+Entropia warunkowa 2 rzędu (znaki):  2.0003592449348733
+Entropia warunkowa 3 rzędu (znaki):  1.53928183088814 
+
+Entropia (słowa):  7.748741386140143 
+Entropia warunkowa 1 rzędu (słowa):  7.486391705240469
+Entropia warunkowa 2 rzędu (słowa):  4.406703462201005
+Entropia warunkowa 3 rzędu (słowa):  0.5950087061872038
+
+
+
+SAMPLE 1                            --- język naturalny
+Entropia (znaki):  4.1270061355497205
+Entropia warunkowa 1 rzędu (znaki):  3.239149992123351
+Entropia warunkowa 2 rzędu (znaki):  2.861279684787192
+Entropia warunkowa 3 rzędu (znaki):  2.3266847405634956 
+
+Entropia (słowa):  11.500715918195095 
+Entropia warunkowa 1 rzędu (słowa):  5.3722347996288216
+Entropia warunkowa 2 rzędu (słowa):  1.5747362197292445
+Entropia warunkowa 3 rzędu (słowa):  0.5075103012622048
+
+
+
+SAMPLE 2                            --- język naturalny
+Entropia (znaki):  3.993311800232583
+Entropia warunkowa 1 rzędu (znaki):  3.050439282781126
+Entropia warunkowa 2 rzędu (znaki):  2.4676602357415414
+Entropia warunkowa 3 rzędu (znaki):  1.9397723261444002 
+
+Entropia (słowa):  8.023869815826428 
+Entropia warunkowa 1 rzędu (słowa):  7.348623166136973
+Entropia warunkowa 2 rzędu (słowa):  3.7819360988868396
+Entropia warunkowa 3 rzędu (słowa):  0.8595059631114415
+
+
+
+SAMPLE 3                            --- język naturalny
+Entropia (znaki):  3.9302978341579875
+Entropia warunkowa 1 rzędu (znaki):  3.1844670670954227
+Entropia warunkowa 2 rzędu (znaki):  2.6278957095512583
+Entropia warunkowa 3 rzędu (znaki):  2.023991488805954 
+
+Entropia (słowa):  9.061139321960427 
+Entropia warunkowa 1 rzędu (słowa):  5.9502136507585135
+Entropia warunkowa 2 rzędu (słowa):  2.630802850321392
+Entropia warunkowa 3 rzędu (słowa):  1.2640892290658954
+
+
+
+SAMPLE 4                            --- plik NIE ZAWIERA języka naturalnego 
+Entropia (znaki):  4.25384170569035
+Entropia warunkowa 1 rzędu (znaki):  4.229087475164403
+Entropia warunkowa 2 rzędu (znaki):  4.225717239787548
+Entropia warunkowa 3 rzędu (znaki):  4.159345979202847 
+
+Entropia (słowa):  16.779013453767636 
+Entropia warunkowa 1 rzędu (słowa):  3.2376107881763225
+Entropia warunkowa 2 rzędu (słowa):  0.20291191050588353
+Entropia warunkowa 3 rzędu (słowa):  0.0023490438696026706
+
+
+
+SAMPLE 5                            --- plik nie zawiera języka naturalnego 
+Entropia (znaki):  4.441650684616399
+Entropia warunkowa 1 rzędu (znaki):  3.5229973679745656
+Entropia warunkowa 2 rzędu (znaki):  3.250549004379661
+Entropia warunkowa 3 rzędu (znaki):  2.834208140310758 
+
+Entropia (słowa):  16.508450744705613 
+Entropia warunkowa 1 rzędu (słowa):  4.544607939784389e-06
+Entropia warunkowa 2 rzędu (słowa):  4.544612098927137e-06
+Entropia warunkowa 3 rzędu (słowa):  4.544616258077501e-06
+

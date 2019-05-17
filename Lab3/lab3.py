@@ -8,13 +8,16 @@ from string import digits
 
 letters = ' abcdefghijklmnopqrstuvwxyz0123456789'
 
+def printProbs(probs):
+    for key, value in sorted(probs.items(), key=operator.itemgetter(1), reverse=True):
+        print(key, value)
 
-def getProbs(text, n):
+
+def getProbs(bag, n):
     probs = {}
-    count = 0
-    for i in range(len(text) - n + 1):
-        ngram = text[i:i+n]
-        count += 1
+    count = len(bag) - n + 1
+    for i in range(count):
+        ngram = bag[i:i+n]
         if tuple(ngram) in probs:
             probs[tuple(ngram)] += 1
         else:
@@ -24,9 +27,13 @@ def getProbs(text, n):
     return probs
 
 
-def printProbs(probs):
-    for key, value in sorted(probs.items(), key=operator.itemgetter(1), reverse=True):
-        print(key, value)
+
+def calculateTheoriticalEntropy():
+    entropy = 0
+    prob = 1/len(letters)
+    for i in range(len(letters)):
+        entropy += prob * math.log(prob, 2)
+    return -entropy
 
 
 def calculateEntropy(probs):
@@ -38,21 +45,11 @@ def calculateEntropy(probs):
 
 def calculateConditionalEntropy(probs, conditionalProbs):
     entropy = 0
-    # print(probs)
     for key, value in conditionalProbs.items():
-        # print(key)
         for key2, prob in value.items():
-            if key + tuple(key2) in probs.keys():
-                entropy += probs[key + tuple(key2)] * math.log(prob, 2)
+            entropy += probs[key + tuple([key2])] * math.log(prob, 2)
     return -entropy
     
-
-def calculateTheoriticalEntropy():
-    entropy = 0
-    prob = 1/len(letters)
-    for i in range(len(letters)):
-        entropy += prob * math.log(prob, 2)
-    return -entropy
 
 
 def normalizeProbability(probs):
@@ -65,51 +62,53 @@ def getConditionalProbability(text, n):
     conditionalProbs = {}
     nGramPlusOneProbs = getProbs(text, n+1)
     nGramProbs = getProbs(text, n)
-    for k in nGramProbs.keys():
-        conditionalProbs[k] = {}
-        for letter in letters:
-            newKey = k + tuple(letter)
-            if newKey in nGramPlusOneProbs.keys():
-                conditionalProbs[k][letter] = nGramPlusOneProbs[newKey] / nGramProbs[k]
-        normalizeProbability(conditionalProbs[k])
+
+    for key in nGramPlusOneProbs.keys():
+        if key[:-1] not in conditionalProbs:
+            conditionalProbs[key[:-1]] = {}
+        conditionalProbs[key[:-1]][key[-1]] = nGramPlusOneProbs[key] / nGramProbs[key[:-1]]
+
+    for key in conditionalProbs:
+        normalizeProbability(conditionalProbs[key])
+    
     return nGramPlusOneProbs, conditionalProbs
 
 
-def getWordsProbs(words, n):
-    probs = {}
-    count = len(words) - n + 1
-    for i in range(count):
-        ngram = words[i:i+n]
-        if tuple(ngram) in probs:
-            probs[tuple(ngram)] += 1 
-        else:
-            probs[tuple(ngram)] = 1
-    for key in probs.keys():
-        probs[key] /= count
-    return probs
+def showEntropyForFile(file, language):
+    file = open(file, 'r')
+    text = file.read()[:1000000]
+    words = text.split(' ')
 
+    print(language)
+    print('Entropia (znaki): ', calculateEntropy(getProbs(text, 1)))
+    probs, conProbs = getConditionalProbability(text, 1)
+    print('Entropia warunkowa 1 rzędu (znaki): ', calculateConditionalEntropy(probs, conProbs))
+    probs, conProbs = getConditionalProbability(text, 2)
+    print('Entropia warunkowa 2 rzędu (znaki): ', calculateConditionalEntropy(probs, conProbs))
+    probs, conProbs = getConditionalProbability(text, 3)
+    print('Entropia warunkowa 3 rzędu (znaki): ', calculateConditionalEntropy(probs, conProbs), '\n')
 
-file = open('norm_wiki_en.txt', 'r')
-text = file.read()[:10000000]
-# text = file.read()
-words = text.split(' ')
-# text = text.translate(str.maketrans('', '', digits))
-# text = re.sub(' +', ' ', text)
-
-# print('Entropia teorytyczna dla równego prawdopodobieństwa wszystkich znaków: ', calculateTheoriticalEntropy(), '\n')
-# print('Entropia zerowego rzędu dla rzeczywistego tekstu: ', calculateEntropy(getProbs(text, 1)))
-# print('Entropia pierwszego rzędu dla rzeczywistego tekstu: ', calculateEntropy(getProbs(text, 2)))
-# print('Entropia drugiego rzędu dla rzeczywistego tekstu: ', calculateEntropy(getProbs(text, 3)), '\n')
-
-# probs, conProbs = getConditionalProbability(text, 2)
-# print('Entropia warunkowa pierwszego rzędu dla rzeczywistego tekstu: ', calculateConditionalEntropy(probs, conProbs))
-
-print('Entropia zerowego rzędu dla rzeczywistego tekstu: ', calculateEntropy(getWordsProbs(words, 1)))
-
-# print('Entropia pierwszego rzędu dla rzeczywistego tekstu: ', calculateEntropy(getProbs(text)))
-# print('Entropia drugiego rzędu dla rzeczywistego tekstu: ', calculateEntropy(getProbs(text, 3)), '\n')
+    print('Entropia (słowa): ', calculateEntropy(getProbs(words, 1)))
+    probs, conProbs = getConditionalProbability(words, 1)
+    print('Entropia warunkowa 1 rzędu (słowa): ', calculateConditionalEntropy(probs, conProbs))
+    probs, conProbs = getConditionalProbability(words, 2)
+    print('Entropia warunkowa 2 rzędu (słowa): ', calculateConditionalEntropy(probs, conProbs))
+    probs, conProbs = getConditionalProbability(words, 3)
+    print('Entropia warunkowa 3 rzędu (słowa): ', calculateConditionalEntropy(probs, conProbs), '\n\n\n')
 
 
 
+showEntropyForFile('norm_wiki_en.txt', 'JĘZYK ANGIELSKI')
+showEntropyForFile('norm_wiki_la.txt', 'JĘZYK ŁACIŃSKI')
+showEntropyForFile('norm_wiki_eo.txt', 'JĘZYK ESPERANTO')
+showEntropyForFile('norm_wiki_et.txt', 'JĘZYK ESTOŃSKI')
+showEntropyForFile('norm_wiki_ht.txt', 'JĘZYK HAITAŃSKI')
+showEntropyForFile('norm_wiki_nv.txt', 'JĘZYK NAVAHO')
+showEntropyForFile('norm_wiki_so.txt', 'JĘZYK SOMALIJSKI')
 
-# print(getWordsProbability(words))
+showEntropyForFile('sample0.txt', 'SAMPLE 0')
+showEntropyForFile('sample1.txt', 'SAMPLE 1')
+showEntropyForFile('sample2.txt', 'SAMPLE 2')
+showEntropyForFile('sample3.txt', 'SAMPLE 3')
+showEntropyForFile('sample4.txt', 'SAMPLE 4')
+showEntropyForFile('sample5.txt', 'SAMPLE 5')
