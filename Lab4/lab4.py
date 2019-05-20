@@ -3,25 +3,22 @@ from math import log2, ceil
 import operator
 
 letters = ' abcdefghijklmnopqrstuvwxyz0123456789'
-decodeDict = {}
-encodeDict = {}
-encodedText = ''
 
 
 def getLettersCount(text):
-    lettersDict = {letter: text.count(letter) for letter in letters}
-    lettersDict = {key: value for key, value in lettersDict.items() if value != 0}
+    lettersDict = {letter: text.count(letter) for letter in letters if letter in text}
     return dict(sorted(lettersDict.items(), key=operator.itemgetter(1), reverse=True))
 
 
-def create(text):
-    lettersFreq = getLettersCount(text)
+def create(lettersFreq):
+    decodeDict = {}
+    encodeDict = {}
     codeLen = ceil(log2(len(lettersFreq)))
-    for i, key in enumerate(lettersFreq.keys()):
-        decodeDict[('{:0' + str(codeLen) + 'b}').format(i)] = key
-        encodeDict[key] = ('{:0' + str(codeLen) + 'b}').format(i)
-    return codeLen, encodeDict, decodeDict
-
+    for i, letter in enumerate(lettersFreq):
+        decodeDict[('{:0' + str(codeLen) + 'b}').format(i)] = letter
+        encodeDict[letter] = ('{:0' + str(codeLen) + 'b}').format(i)
+    return encodeDict, decodeDict
+    
 
 def readText(filename, signsNo=0):
     file = open(filename, 'r')
@@ -34,40 +31,78 @@ def encode(text, encodeDict):
     encodedText = bitarray()
     for letter in text:
         encodedText += bitarray(encodeDict[letter])
+
+    # FIX ###########
+    filling = (len(encodedText) + 3) % 8
+    offsetLen = 8 - filling if filling != 0 else 0
+    codeOffset = bitarray(bin(offsetLen)[2:].zfill(3))
+    encodedText = codeOffset + encodedText
+    #################
+
     return encodedText
     
 
 def decode(encodedText, decodeDict):
     resultText = ''
-    for i in range(0, len(encodedText), codeLen):
-        resultText += decodeDict[encodedText[i:i+codeLen].to01()]
+    codeLen = len(list(decodeDict.keys())[0])
+
+    # FIX ###########
+    offsetLen = int(encodedText[:3].to01(), 2)
+    for i in range(3, len(encodedText) - offsetLen, codeLen):
+        resultText += decodeDict[encodedText[i:i+codeLen].to01()] 
     return resultText
     
 
 def save(encodedText, encodeDict, encodedTextFilename = 'endcodedText.txt', codeFilename = 'code.txt'):
     encodedFile = open(encodedTextFilename, 'w+b')
-    codeFile = open(codeFilename, 'w+')
-
     encodedFile.write(encodedText.tobytes())
-    codeFile.write(''.join(encodeDict.keys()))
-
     encodedFile.close()
+
+    codeFile = open(codeFilename, 'w+')
+    codeFile.write(''.join(encodeDict.keys()))
     codeFile.close()
 
 
-def load():
-    codeFile = open('code.txt', 'r')
-    encodedFile = open('encoded.txt', 'r')
+def load(encodedTextFilename, codeFilename):
+    encodedFile = open(encodedTextFilename, 'rb')
+    encodedText = bitarray()
+    encodedText.frombytes(encodedFile.read())
+    encodedFile.close()
+
+    codeFile = open(codeFilename, 'r')
+    encodeDict, decodeDict = create(list(codeFile.read()))
+    codeFile.close()
+
+    return encodedText, encodeDict, decodeDict
 
 
-text = readText('norm_wiki_sample.txt', signsNo = 10000)
-print(text)
+def encodingIsCorrect():
+    text = 'text to verify correctness of encoding and decoding algorithm'
+    encodeDict, decodeDict = create(getLettersCount(text))
+    encodedText = encode(text, encodeDict)
+    originalText = decode(encodedText, decodeDict)
+    return text == originalText
 
-codeLen, encodeDict, decodeDict = create(text)
 
+
+
+if (encodingIsCorrect()):
+    print('Encoding and decoding algorithm is correct\n')
+else:
+    print('Encoding and decoding algorithm is NOT correct\n')  
+
+
+
+text = readText('norm_wiki_sample.txt', signsNo = 0)
+# print(text)
+
+encodeDict, decodeDict = create(getLettersCount(text))
 encodedText = encode(text, encodeDict)
-
 save(encodedText, encodeDict, 'encodedText.txt', 'code.txt')
 
+encodedText, encodeDict, decodeDict = load('encodedText.txt', 'code.txt')
 originalText = decode(encodedText, decodeDict)
-print(originalText)
+# print(originalText)
+
+
+

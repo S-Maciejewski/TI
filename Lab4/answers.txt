@@ -1,0 +1,10 @@
+1. Najkrótsza długość kodu dla korpusu tekstowego, zawierającego 26 liter alfabetu, 10 cyfr i spację (łącznie 37 znaków) to ceil(log2(37)) czyli 6 bitów.
+
+2. Skoro przed kompresją znaki były zapisywane na 8 bitach, a teraz są zapisywane na 6 bitach to stopień kompresji wyniesie 8/6 czyli 1.333333333. 
+
+3. Rozmiar oryginalnego pliku to 10788941 bajtów. Po skompresowaniu rozmiar pliku z zakodowanym tekstem wynosi 8091707 bajtów, a plik z kodem 37 bajtów. Stosunek tych wartości wynosi 1.333327.
+
+
+Przedstawiona metoda kompresji w oryginalnej wersji nie zapewniała poprawności kodowania, ze względu na to, że przy zapisie do pliku ciąg bitów był dopełniany zerami do wielokrotności 8 i zdarzały się sytuacje, gdzie dopisane zera były traktowane jako kolejny znak.
+
+Problem ten rozwiązaliśmy w następujący sposób: przed zapisem zakodowanej wiadomości z przodu dopisujemy 3 bity, oznaczające liczbę nieużywanych bitów na końcu wiadomości (od 0 do 7 bitów, zakodowanych w postaci binarnej). Przy odczytaniu odczytywana jest na początku liczba bitów, które nie zostaną odczytane na końcu wiadomości. Narzut w tym przypadku jest znikomy i wynosi 3 bity dla dowolnie długiej wiadomości.
