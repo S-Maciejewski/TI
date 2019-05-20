@@ -5,58 +5,51 @@ import operator
 letters = ' abcdefghijklmnopqrstuvwxyz0123456789'
 decodeDict = {}
 encodeDict = {}
-codeLen = 0
 encodedText = ''
-text = ''
 
 
-def getLettersCount():
+def getLettersCount(text):
     lettersDict = {letter: text.count(letter) for letter in letters}
     lettersDict = {key: value for key, value in lettersDict.items() if value != 0}
     return dict(sorted(lettersDict.items(), key=operator.itemgetter(1), reverse=True))
 
 
-def create():
-    letterFreq = getLettersCount()
-    global codeLen
-    codeLen = ceil(log2(len(letterFreq)))
-    for i, key in enumerate(letterFreq.keys()):
+def create(text):
+    lettersFreq = getLettersCount(text)
+    codeLen = ceil(log2(len(lettersFreq)))
+    for i, key in enumerate(lettersFreq.keys()):
         decodeDict[('{:0' + str(codeLen) + 'b}').format(i)] = key
         encodeDict[key] = ('{:0' + str(codeLen) + 'b}').format(i)
+    return codeLen, encodeDict, decodeDict
 
 
 def readText(filename, signsNo=0):
     file = open(filename, 'r')
-    global text
     text = file.read()[:signsNo] if signsNo != 0 else file.read()
     file.close()
+    return text
     
 
-def encode():
-    enText = bitarray()
+def encode(text, encodeDict):
+    encodedText = bitarray()
     for letter in text:
-        enText += bitarray(encodeDict[letter])
-        print(bitarray(encodeDict[letter]))
-    global encodedText
-    encodedText = enText
+        encodedText += bitarray(encodeDict[letter])
+    return encodedText
     
 
-
-def decode():
-    print(decodeDict)
+def decode(encodedText, decodeDict):
     resultText = ''
     for i in range(0, len(encodedText), codeLen):
-        print(encodedText[i:i+codeLen])
-        resultText += decodeDict[encodedText[i:i+codeLen]]
-    print(resultText)
+        resultText += decodeDict[encodedText[i:i+codeLen].to01()]
+    return resultText
     
 
-def save():
-    codeFile = open('code.txt', 'w+')
-    codeFile.write(''.join(encodeDict.keys()))
+def save(encodedText, encodeDict, encodedTextFilename = 'endcodedText.txt', codeFilename = 'code.txt'):
+    encodedFile = open(encodedTextFilename, 'w+b')
+    codeFile = open(codeFilename, 'w+')
 
-    encodedFile = open('encoded.txt', 'w+b')
     encodedFile.write(encodedText.tobytes())
+    codeFile.write(''.join(encodeDict.keys()))
 
     encodedFile.close()
     codeFile.close()
@@ -67,9 +60,14 @@ def load():
     encodedFile = open('encoded.txt', 'r')
 
 
-readText('norm_wiki_sample.txt', signsNo = 10)
+text = readText('norm_wiki_sample.txt', signsNo = 10000)
 print(text)
-create()
-encode()
-decode()
-save()
+
+codeLen, encodeDict, decodeDict = create(text)
+
+encodedText = encode(text, encodeDict)
+
+save(encodedText, encodeDict, 'encodedText.txt', 'code.txt')
+
+originalText = decode(encodedText, decodeDict)
+print(originalText)
