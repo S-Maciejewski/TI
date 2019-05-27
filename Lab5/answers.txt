@@ -1,0 +1,7 @@
+Entropia (znaki):  4.280396246701565
+
+Średnia długość słowa kodowego: 6 bitów
+Efektywność kodowania z ostatnich zajęć to 71.33993744502608
+
+Średnia długość słowa kodowego: 4.3090155002237935 bitów
+Efektywność kodowania to 99.33582848516691
