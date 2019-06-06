@@ -1,0 +1,21 @@
+wiki_sample:
+Size before compression: 			 11909016 bytes
+Dictionary size: full -> compression: 4709923 bytes  =  39,549%
+Dictionary size: 2^12 -> compression: 6602746 bytes  =  55,443%
+Dictionary size: 2^18 -> compression: 4850414 bytes  =  40,728%
+
+
+norm_wiki_sample:
+Size before compression: 			 10788941 bytes
+Dictionary size: full -> compression: 4151596 bytes  =  38,480%
+Dictionary size: 2^12 -> compression: 5397125 bytes  =  50,024%
+Dictionary size: 2^18 -> compression: 4131478 bytes  =  38,293%
+
+
+lena:
+Size before compression: 			  11524938 bytes
+Dictionary size: full -> compression:  7380753 bytes  =  64,041%
+Dictionary size: 2^12 -> compression: 13485325 bytes  = 117,009%
+Dictionary size: 2^18 -> compression: 10308882 bytes  =  89,448%
+
+

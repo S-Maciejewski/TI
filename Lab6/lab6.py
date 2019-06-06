@@ -3,46 +3,49 @@ from math import log2, ceil, log
 import operator
 from queue import PriorityQueue
 from numpy import array, mean, min
+from operator import itemgetter    
 
-letters = ' abcdefghijklmnopqrstuvwxyz0123456789'
-
-
-def create(text):
+def create(text, maxDictSize=0):
     output = []
-    encodeDictChars = {letter: i for i, letter in enumerate(
-        letters) if letter in text}
-    p = text[0]
+    encodeDictChars = {letter: i for i, letter in enumerate(list(set(text))) }
+    dictToSave = dict(encodeDictChars)
+
     dictLen = len(encodeDictChars)
-    for letter in text[1:]:
-        c = letter
-        if (p+c in encodeDictChars):
-            p = p + c
-        else:
-            dictLen += 1
-            encodeDictChars[p+c] = dictLen
-            output.append(encodeDictChars[p])
-            p = c
+    p = text[0]
+    if maxDictSize == 0:    # sprawdzenie tutaj, żeby nie sprawdzać tego warunku miliardy razy w pętli
+        for letter in text[1:]:
+            c = letter
+            p_c = sumTuples(p, c)
+            if p_c in encodeDictChars:
+                p = p_c
+            else:
+                encodeDictChars[p_c] = dictLen
+                dictLen += 1
+                output.append(encodeDictChars[p])
+                p = c
+    else:
+        dictIsFull = False if len(encodeDictChars) < maxDictSize else True
+        for letter in text[1:]:
+            c = letter
+            p_c = sumTuples(p, c)
+            if p_c in encodeDictChars:
+                p = p_c
+            else:
+                if not dictIsFull:
+                    encodeDictChars[p_c] = dictLen
+                    dictLen += 1
+                    if dictLen == maxDictSize:
+                        dictIsFull = True
+                output.append(encodeDictChars[p])
+                p = c
     output.append(encodeDictChars[p])
 
-    decodeDict = {}
     encodeDict = {}
     codeLen = ceil(log2(len(encodeDictChars)))
-
-    for i, letter in enumerate(encodeDictChars.values()):
-        decodeDict[('{:0' + str(codeLen) + 'b}').format(i)] = letter
-        encodeDict[letter] = ('{:0' + str(codeLen) + 'b}').format(i)
-
-    dictToSave = {letter: code for letter,
-                  code in encodeDictChars.items() if len(letter) == 1}
+    for num in encodeDictChars.values():
+        encodeDict[num] = ('{:0' + str(codeLen) + 'b}').format(num)
 
     return encodeDict, dictToSave, output, codeLen
-
-
-def readText(filename, signsNo=0):
-    file = open(filename, 'r')
-    text = file.read()[:signsNo] if signsNo != 0 else file.read()
-    file.close()
-    return text
 
 
 def encode(output, encodeDict):
@@ -60,67 +63,32 @@ def encode(output, encodeDict):
     return encodedText
 
 
+def sumTuples(t1, t2):
+    t1 = t1 if isinstance(t1, tuple) else (t1,)
+    t2 = t2 if isinstance(t2, tuple) else (t2,)
+    return t1 + t2
+
+
 def decode(encodedText, codeLen, dictFromSave):
-
-    output = []
-
     textLen = len(encodedText)
-    position = 3
-    while (position < textLen):
-        code = encodedText[position:position+codeLen]
-        output.append(int(code.to01(), 2))
-        position += codeLen
+    output = [int(code.to01(), 2) for code in [encodedText[i:i+codeLen] for i in range(3, textLen, codeLen)]]
 
-    print(output)
+    count = len(dictFromSave)
 
     old = output[0]
-
+    s = dictFromSave[old]
+    c = s
+    result = [s]
     for num in output[1:]:
         new = num
-        if (new not in dictFromSave):
-            s = dictFromSave
+        s = sumTuples(dictFromSave[old], c) if (new not in dictFromSave) else dictFromSave[new]
+        result += list(s) if isinstance(s, tuple) else [s]
+        c = s[0] if isinstance(s, tuple) else s
+        dictFromSave[count] = sumTuples(dictFromSave[old], c)
+        count += 1
+        old = new
 
-#     OLD = first input code
-
-
-# 3    output translation of OLD
-# 4    WHILE not end of input stream
-# 5        NEW = next input code
-# 6        IF NEW is not in the string table
-# 7               S = translation of OLD
-# 8               S = S + C
-# 9       ELSE
-# 10              S = translation of NEW
-# 11       output S
-# 12       C = first character of S
-# 13       OLD + C to the string table
-# 14       OLD = NEW
-# 15   END WHILE
-
-# encodeDictChars = {letter: i for i, letter in enumerate(letters) if letter in text}
-# p = text[0]
-# dictLen = len(encodeDictChars)
-# for letter in text[1:]:
-#     c = letter
-#     if (p+c in encodeDictChars):
-#         p = p + c
-#     else:
-#         dictLen += 1
-#         encodeDictChars[p+c] = dictLen
-#         output.append(encodeDictChars[p])
-#         p = c
-# output.append(encodeDictChars[p])
-
-# decodeDict = {}
-# encodeDict = {}
-# codeLen = ceil(log2(len(encodeDictChars)))
-
-# for i, letter in enumerate(encodeDictChars.values()):
-#     decodeDict[('{:0' + str(codeLen) + 'b}').format(i)] = letter
-#     encodeDict[letter] = ('{:0' + str(codeLen) + 'b}').format(i)
-
-# return encodeDict, decodeDict, output
-# pass
+    return bytes(result)
 
 
 def save(encodedText, dictToSave, codeLen, encodedTextFilename='endcodedText.txt', codeFilename='code.txt'):
@@ -128,59 +96,69 @@ def save(encodedText, dictToSave, codeLen, encodedTextFilename='endcodedText.txt
     encodedFile.write(encodedText.tobytes())
     encodedFile.close()
 
-    codeFile = open(encodedTextFilename, 'w+')
-    codeFile.write(str(ceil(log2(len(dictToSave)))) + '\n')
-    for key, value in dictToSave.items():
-        codeFile.write(str(value) + ' ' + key + "\n")
-
+    codeFile = open(codeFilename, 'w+b')
+    codeFile.write(bytes([codeLen]))
+    for (t, n) in sorted(dictToSave.items(), key = itemgetter(1), reverse = False):
+        codeFile.write(bytes([t]))
     codeFile.close()
 
 
-def load(encodedTextFilename, codeFilename):
+def load(encodedTextFilename='endcodedText.txt', codeFilename='code.txt'):
     encodedFile = open(encodedTextFilename, 'rb')
     encodedText = bitarray()
     encodedText.frombytes(encodedFile.read())
+    
+    # remove unnecessary bits at the end
+    for i in range(int(encodedText[:3].to01(), 2)):
+        encodedText.pop()
     encodedFile.close()
 
-    encodeDict = {}
-    codeFile = open(codeFilename, 'r')
-    f = codeFile.readlines()
-    for line in f:
-        s = line.replace('\n', '')
-        encodeDict[s[0]] = s[1:]
-    decodeDict = {value: key for key, value in encodeDict.items()}
+    codeFile = open(codeFilename, 'rb')
+    chars = codeFile.read()
+    codeLen = chars[0]
+    decodeDict = {i: sign for i, sign in enumerate(chars[1:]) }
     codeFile.close()
 
-    return encodedText, encodeDict, decodeDict
+    return encodedText, decodeDict, codeLen
 
 
-def encodingIsCorrect():
-    # text = 'text to verify correctness of encoding and decoding algorithm'
-    # encodeDict, decodeDict = create(getLettersProbs(text))
-    # encodedText = encode(text, encodeDict)
-    # originalText = decode(encodedText, decodeDict)
-    # if text == originalText:
-    #     print('Encoding and decoding algorithm is correct\n')
-    # else:
-    #     print('Encoding and decoding algorithm is NOT correct\n')
-    pass
+def readText(filename, signsNo=0):
+    file = open(filename, 'rb')
+    text = file.read()[:signsNo] if signsNo != 0 else file.read()
+    file.close()
+    return text
 
 
-# text = readText('norm_wiki_sample.txt', 10000)
-text = readText('sample2.txt', 10000)
+# text = readText('sample.txt')
+# text = readText('norm_wiki_sample/norm_wiki_sample.txt')
+# encodeDict, dictToSave, output, codeLen = create(text, 4096)
+# print(len(encodeDict))
+# encodedText = encode(output, encodeDict)
+# save(encodedText, dictToSave, codeLen, 'norm_wiki_sample/2^12/encoded.txt', 'norm_wiki_sample/full/code.txt')
+# loadedText, decodeDict, loadedCodeLen = load('norm_wiki_sample/2^12/encoded.txt', 'norm_wiki_sample/full/code.txt')
+# decodedText = decode(loadedText, loadedCodeLen, decodeDict)
 
-encodeDict, dictToSave, output, codeLen = create(text)
 
-encodedText = encode(output, encodeDict)
+def run(folder, fileExtension):
+    text = readText(folder + '/' + folder + '.' + fileExtension)
+    print("Size before compression:", len(text), 'bytes\n')
 
-# decode(encodedText, codeLen)
+    for size, subfolder in [(0, 'full'), (4096, '2^12'), (262144, '2^18')]:
+        fullEncodedFilePath = folder + '/' + subfolder + '/encoded.txt'
+        codeFilePath = folder + '/' + subfolder + '/code.txt'
 
-print(encodedText)
+        encodeDict, dictToSave, output, codeLen = create(text, size)
+        encodedText = encode(output, encodeDict)
+        save(encodedText, dictToSave, codeLen, fullEncodedFilePath, codeFilePath)
 
-save(encodedText, dictToSave, codeLen)
+        loadedText, decodeDict, loadedCodeLen = load(fullEncodedFilePath, codeFilePath)
+        decodedText = decode(loadedText, loadedCodeLen, decodeDict)
 
-# print(text)
-# print(output)
-# print(encodeDict)
-print('output length =', len(output), '\ndict length =',
-      len(encodeDict), '\ntext length =', len(text))
+        if(text == decodedText):
+            print('Dictionary size:', subfolder)
+            print('Compression successful!')
+            print("Size after compression:", ceil(len(encodedText)/8), 'bytes\n')
+
+# run('norm_wiki_sample', 'txt')
+# run('wiki_sample', 'txt')
+run('lena', 'bmp')

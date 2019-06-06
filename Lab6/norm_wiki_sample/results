@@ -1,0 +1,13 @@
+Size before compression: 10788941 bytes
+
+Dictionary size: full
+Compression successful!
+Size after compression: 4151596 bytes
+
+Dictionary size: 2^12
+Compression successful!
+Size after compression: 5397125 bytes
+
+Dictionary size: 2^18
+Compression successful!
+Size after compression: 4131478 bytes
